@@ -93,6 +93,6 @@ kill_timeout = "15s"
     interval = "15s"
     method = "get"
     path = "/check"
-    port = 8080
+    port = 8888
     timeout = "2s"
     type = "http"
