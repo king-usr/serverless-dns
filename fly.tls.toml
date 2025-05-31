@@ -1,4 +1,4 @@
-app = "root-black-meadow-4906"
+app = ""
 
 kill_signal = "SIGINT"
 kill_timeout = "15s"
