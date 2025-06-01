@@ -32,7 +32,7 @@ COPY --from=setup /app/node_modules ./node_modules
 COPY --from=setup /app/src ./src
 COPY --from=setup /app/blocklists__ ./blocklists__
 COPY --from=setup /app/dbip__ ./dbip__
-COPY --from=setup /app/package.json ./package.json # 复制 package.json 以便 npm start
+COPY --from=setup /app/package.json ./package.json
 
 # 再次验证文件是否存在 (仅用于调试，成功后可删除)
 RUN ls -Fla /app
