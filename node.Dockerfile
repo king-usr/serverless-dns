@@ -19,7 +19,7 @@ FROM node:22-alpine AS runner
 ENV NODE_ENV production
 ENV NODE_OPTIONS="--max-old-space-size=200 --heapsnapshot-signal=SIGUSR2"
 # 确保 BLOCKLIST_DOWNLOAD_ONLY 变量在运行阶段为 false 或不设置
-ENV BLOCKLIST_DOWNLOAD_ONLY=false # 明确设置为 false，非常重要
+ENV BLOCKLIST_DOWNLOAD_ONLY=false
 
 WORKDIR /app
 
