@@ -2,7 +2,7 @@ FROM node:22 as setup
 # git is required if any of the npm packages are git[hub] packages
 RUN apt-get update && apt-get install git -yq --no-install-suggests --no-install-recommends
 WORKDIR /app
-COPY . /app
+COPY . .
 # get deps, build, bundle
 RUN npm i
 # webpack externalizes native modules (@riaskov/mmap-io)
