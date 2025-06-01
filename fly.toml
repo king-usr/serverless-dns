@@ -1,62 +1,98 @@
-# fly.toml for serverless-dns
-# 请将 "my-serverless-dns" 替换为你的应用名称
 app = ""
-primary_region = "nrt"  # 东京区域，可改为 hkg(香港) 或 sin(新加坡)
+
+kill_signal = "SIGINT"
+kill_timeout = "15s"
+# swap cannot be used with "suspend"
+# community.fly.io/t/20672
+# swap_size_mb = 152
 
 [build]
-  # 如果项目有 Dockerfile 就使用，否则使用 Node.js buildpack
-  
+  dockerfile = "node.Dockerfile"
+
+[experimental]
+  auto_rollback = true
+
 [env]
-  PORT = "8080"
+  CLOUD_PLATFORM = "fly"
+  BUN_ENV = "production"
+  DENO_ENV = "production"
   NODE_ENV = "production"
-  # serverless-dns 可能需要的环境变量
-  CF_BLOCKLIST_URL = ""
   LOG_LEVEL = "info"
+  # in weeks
+  AUTO_RENEW_BLOCKLISTS_OLDER_THAN = "2"
 
-[http_service]
+# community.fly.io/t/19180
+# fly.io/docs/machines/guides-examples/machine-restart-policy
+[[restart]]
+  policy = "on-failure"
+  retries = 3
+
+# DNS over HTTPS
+[[services]]
+  protocol = "tcp"
   internal_port = 8080
-  force_https = true
-  auto_stop_machines = true
+  auto_stop_machines = "suspend"
   auto_start_machines = true
-  min_machines_running = 0
-  processes = ["app"]
 
-  [http_service.concurrency]
+  [[services.ports]]
+    # TODO: ProxyProto v2
+    port = 443
+  [[services.ports]]
+    port = 8080
+
+  [services.concurrency]
     type = "connections"
-    hard_limit = 1000
-    soft_limit = 800
+    hard_limit = 775
+    soft_limit = 600
 
-# DNS over HTTPS (DoH) 服务
+  [[services.tcp_checks]]
+    # super aggressive interval and timeout because
+    # health-check routing is handled by fly-proxy
+    # and it is cross-region
+    # community.fly.io/t/12997
+    interval = "5s"
+    timeout = "1s"
+    grace_period = "15s"
+    # restart_limit not used on appsv2
+    restart_limit = 0
+
+# DNS over TLS
 [[services]]
   protocol = "tcp"
-  internal_port = 8080
-  ports = [
-    { port = 80, handlers = ["http"] },
-    { port = 443, handlers = ["tls", "http"] }
-  ]
+  internal_port = 10000
+  auto_stop_machines = "suspend"
+  auto_start_machines = true
 
-# DNS over TLS (DoT) 服务 - 如果项目支持
-[[services]]
-  protocol = "tcp"
-  internal_port = 8053
-  ports = [
-    { port = 853 }  # Standard DoT port
-  ]
+  [[services.ports]]
+    # TODO: ProxyProto v2
+    port = 853
+  [[services.ports]]
+    port = 10000
 
-# 传统 DNS (UDP) - 如果项目支持
-[[services]]
-  protocol = "udp"
-  internal_port = 5053
-  ports = [
-    { port = 53 }
-  ]
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 775
+    soft_limit = 600
 
-[vm]
-  memory = "512mb"  # DNS 解析器可能需要更多内存
-  cpu_kind = "shared"
-  cpus = 1
+  [[services.tcp_checks]]
+    # super aggressive interval and timeout because
+    # health-check routing is handled by fly-proxy
+    # and it is cross-region
+    # community.fly.io/t/12997
+    interval = "5s"
+    timeout = "1s"
+    grace_period = "15s"
+    # restart_limit is unused in appsv2
+    restart_limit = 0
 
-# 如果需要持久化数据（如缓存或日志）
-# [[vm.mounts]]
-#   source = "serverless_dns_data"
-#   destination = "/app/data"
+# community.fly.io/t/5490/3
+[checks]
+  [checks.up]
+    # grace_period affects time taken for rolling deploys
+    grace_period = "15s"
+    interval = "15s"
+    method = "get"
+    path = "/check"
+    port = 8888
+    timeout = "2s"
+    type = "http"
