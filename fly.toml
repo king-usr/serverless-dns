@@ -51,8 +51,8 @@ kill_timeout = "15s"
     # and it is cross-region
     # community.fly.io/t/12997
     interval = "5s"
-    timeout = "5s"
-    grace_period = "15s"
+    timeout = "10s"
+    grace_period = "30s"
     # restart_limit not used on appsv2
     restart_limit = 0
 
@@ -80,8 +80,8 @@ kill_timeout = "15s"
     # and it is cross-region
     # community.fly.io/t/12997
     interval = "5s"
-    timeout = "5s"
-    grace_period = "15s"
+    timeout = "10s"
+    grace_period = "30s"
     # restart_limit is unused in appsv2
     restart_limit = 0
 
@@ -89,10 +89,10 @@ kill_timeout = "15s"
 [checks]
   [checks.up]
     # grace_period affects time taken for rolling deploys
-    grace_period = "15s"
+    grace_period = "30s"
     interval = "15s"
     method = "get"
     path = "/"
     port = 8080
-    timeout = "5s"
+    timeout = "10s"
     type = "http"
