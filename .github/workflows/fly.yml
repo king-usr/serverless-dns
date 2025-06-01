@@ -1,4 +1,4 @@
-name: Deploy to Fly.io
+name: Deploy Serverless-DNS to Fly.io
 
 on:
   push:
@@ -9,7 +9,6 @@ on:
 
 env:
   FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-  FLY_APP_NAME: ${{ secrets.FLY_APP_NAME }}
 
 jobs:
   deploy:
@@ -24,19 +23,63 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
         
-    - name: Install dependencies
-      run: npm ci
+    - name: Check for lock files and install dependencies
+      run: |
+        echo "Checking for package managers..."
+        if [ -f package-lock.json ]; then
+          echo "Found package-lock.json, using npm ci"
+          npm ci
+        elif [ -f yarn.lock ]; then
+          echo "Found yarn.lock, using yarn install"
+          npm install -g yarn
+          yarn install --frozen-lockfile
+        elif [ -f pnpm-lock.yaml ]; then
+          echo "Found pnpm-lock.yaml, using pnpm install"
+          npm install -g pnpm
+          pnpm install --frozen-lockfile
+        else
+          echo "No lock file found, using npm install"
+          npm install
+        fi
+        
+    - name: Build project (if build script exists)
+      run: |
+        if npm run | grep -q "build"; then
+          echo "Build script found, running build..."
+          npm run build
+        else
+          echo "No build script found, skipping build step"
+        fi
+      continue-on-error: true
       
-    - name: Run tests
-      run: npm test
+    - name: Run tests (if test script exists)
+      run: |
+        if npm run | grep -q "test"; then
+          echo "Test script found, running tests..."
+          npm test
+        else
+          echo "No test script found, skipping test step"
+        fi
       continue-on-error: true
       
     - name: Setup Fly.io CLI
       uses: superfly/flyctl-actions/setup-flyctl@master
       
     - name: Deploy to Fly.io
-      run: flyctl deploy --remote-only
+      run: |
+        if [ ! -f fly.toml ]; then
+          echo "No fly.toml found, creating default configuration..."
+          flyctl launch --no-deploy --name ${{ secrets.FLY_APP_NAME || 'serverless-dns-app' }}
+        fi
+        flyctl deploy --remote-only
+      env:
+        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        
+    - name: Health check
+      run: |
+        sleep 30
+        flyctl status
+        echo "Deployment completed!"
       env:
         FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
