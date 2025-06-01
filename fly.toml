@@ -51,7 +51,7 @@ kill_timeout = "15s"
     # and it is cross-region
     # community.fly.io/t/12997
     interval = "5s"
-    timeout = "1s"
+    timeout = "5s"
     grace_period = "15s"
     # restart_limit not used on appsv2
     restart_limit = 0
@@ -80,7 +80,7 @@ kill_timeout = "15s"
     # and it is cross-region
     # community.fly.io/t/12997
     interval = "5s"
-    timeout = "1s"
+    timeout = "5s"
     grace_period = "15s"
     # restart_limit is unused in appsv2
     restart_limit = 0
@@ -92,7 +92,7 @@ kill_timeout = "15s"
     grace_period = "15s"
     interval = "15s"
     method = "get"
-    path = "/check"
-    port = 8888
-    timeout = "2s"
+    path = "/"
+    port = 8080
+    timeout = "5s"
     type = "http"
