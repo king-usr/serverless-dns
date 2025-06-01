@@ -94,6 +94,17 @@ jobs:
           echo "FLY_BUILDER_TYPE=${FLY_BUILDER_TYPE:-remote-only}" >> $GITHUB_ENV
         shell: bash
 
+        - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Or whatever version your project needs, e.g., '16' or '18' based on package.json "engines"
+
+      - name: ⬇️ Install Dependencies
+        run: npm install
+
+      - name: ⚙️ Build for Fly.io
+        run: npm run build:fly
+
       - name: 🔐👨‍🚒 FlyTLS via dispatch?
         if: ${{ github.event_name == 'workflow_dispatch' &&
           github.event.inputs.deployment-type == 'flytls' }}
