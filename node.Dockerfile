@@ -30,7 +30,5 @@ COPY --from=setup /app/dbip__ ./dbip__
 
 # print files in work dir, must contain blocklists
 RUN ls -Fla
-RUN ls -la /app
-RUN ls -la /app/src
 # run with the default entrypoint (usually, bash or sh)
-CMD ["node", "./src/server-node.js"]
+CMD ["node", "./fly.mjs"]
