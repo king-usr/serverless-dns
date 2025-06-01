@@ -20,6 +20,7 @@ FROM node:22-alpine AS runner
 # and overrides fly.toml env values
 ENV NODE_ENV production
 ENV NODE_OPTIONS="--max-old-space-size=200 --heapsnapshot-signal=SIGUSR2"
+ENV BLOCKLIST_DOWNLOAD_ONLY=false
 # get working dir in order
 WORKDIR /app
 # external deps not bundled by webpack
