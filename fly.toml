@@ -1,12 +1,16 @@
+# fly.toml for serverless-dns
 app = ""
-primary_region = "nrt"
+primary_region = "nrt"  # 东京区域，可改为 hkg(香港) 或 sin(新加坡)
 
 [build]
-  dockerfile = "Dockerfile"
-
+  # 如果项目有 Dockerfile 就使用，否则使用 Node.js buildpack
+  
 [env]
   PORT = "8080"
   NODE_ENV = "production"
+  # serverless-dns 可能需要的环境变量
+  CF_BLOCKLIST_URL = ""
+  LOG_LEVEL = "info"
 
 [http_service]
   internal_port = 8080
@@ -21,6 +25,24 @@ primary_region = "nrt"
     hard_limit = 1000
     soft_limit = 800
 
+# DNS over HTTPS (DoH) 服务
+[[services]]
+  protocol = "tcp"
+  internal_port = 8080
+  ports = [
+    { port = 80, handlers = ["http"] },
+    { port = 443, handlers = ["tls", "http"] }
+  ]
+
+# DNS over TLS (DoT) 服务 - 如果项目支持
+[[services]]
+  protocol = "tcp"
+  internal_port = 8053
+  ports = [
+    { port = 853 }  # Standard DoT port
+  ]
+
+# 传统 DNS (UDP) - 如果项目支持
 [[services]]
   protocol = "udp"
   internal_port = 5053
@@ -28,22 +50,12 @@ primary_region = "nrt"
     { port = 53 }
   ]
 
-[[services]]
-  protocol = "tcp"
-  internal_port = 5054
-  ports = [
-    { port = 853 }  # DoT port
-  ]
-
-[metrics]
-  port = 9091
-  path = "/metrics"
-
 [vm]
-  memory = "256mb"
+  memory = "512mb"  # DNS 解析器可能需要更多内存
   cpu_kind = "shared"
   cpus = 1
 
-[[vm.mounts]]
-  source = "data"
-  destination = "/data"
+# 如果需要持久化数据（如缓存或日志）
+# [[vm.mounts]]
+#   source = "serverless_dns_data"
+#   destination = "/app/data"
