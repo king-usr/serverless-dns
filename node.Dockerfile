@@ -2,8 +2,8 @@
 FROM node:22 as setup
 RUN apt-get update && apt-get install git -yq --no-install-suggests --no-install-recommends
 WORKDIR /app
-COPY . . # 复制整个项目到 /app
-RUN npm i # 安装所有依赖
+COPY . .
+RUN npm i
 
 # 如果需要下载 blocklists 并在构建时烘焙，确保这个步骤能找到正确的入口文件
 # 假设 `src/server-node.js` 可以通过设置环境变量来执行下载操作
