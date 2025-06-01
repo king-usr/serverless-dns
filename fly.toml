@@ -1,4 +1,5 @@
 # fly.toml for serverless-dns
+# 请将 "my-serverless-dns" 替换为你的应用名称
 app = ""
 primary_region = "nrt"  # 东京区域，可改为 hkg(香港) 或 sin(新加坡)
 
