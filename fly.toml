@@ -20,6 +20,8 @@ kill_timeout = "15s"
   LOG_LEVEL = "info"
   # in weeks
   AUTO_RENEW_BLOCKLISTS_OLDER_THAN = "2"
+  DOH_PORT = "8080"
+  DOT_PORT = "10000"
 
 # community.fly.io/t/19180
 # fly.io/docs/machines/guides-examples/machine-restart-policy
