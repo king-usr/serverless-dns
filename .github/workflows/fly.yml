@@ -97,7 +97,7 @@ jobs:
         - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Or whatever version your project needs, e.g., '16' or '18' based on package.json "engines"
+          node-version: '20'
 
       - name: ⬇️ Install Dependencies
         run: npm install
